@@ -88,6 +88,34 @@
         ";
     }
 
+    function cadastrar($name, $email, $password){
+
+        $iniciar = curl_init('http://api-movies-110421.herokuapp.com/api/users');
+        curl_setopt($iniciar, CURLOPT_CUSTOMREQUEST, "POST");
+
+        $dados = array(
+            "name" => $name,
+            "email" => $email,
+            "password" => $password
+        );
+
+        $dados = json_encode($dados);
+
+        curl_setopt($iniciar, CURLOPT_POSTFIELDS, $dados);
+        curl_setopt($iniciar, CURLOPT_RETURNTRANSFER, true);
+
+        curl_setopt($iniciar, CURLOPT_HTTPHEADER, array(
+
+            'Content-Type: application/json',
+        
+            'Content-Length: ' . strlen($dados))
+        
+        );
+
+        curl_exec($iniciar);
+        curl_close($iniciar);
+    }
+
     function avaliar($value, $cod_movie, $cod_user){
 
         $iniciar = curl_init('http://api-movies-110421.herokuapp.com/api/ratings');
@@ -140,8 +168,10 @@
 
         curl_exec($iniciar);
         curl_close($iniciar);
-        
-        header('locaion: filmes.php');
+    }
+
+    function atualiza(){
+        header('location:filmes.php');
     }
 
 ?>

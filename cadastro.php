@@ -1,24 +1,32 @@
 <?php
   session_start();
+  include('functions.php');
   $msgLog = "";
 
-  if(!empty($_POST['login']) && !empty($_POST['password'])){
-    $email = $_POST['login'];
+  if(!empty($_POST['name']) && !empty($_POST['email']) 
+            && !empty($_POST['password']) && !empty($_POST['password_2'])){
+       
+    $name = $_POST['name'];
+    $email = $_POST['email'];
     $password = $_POST['password'];
+    $password_2 = $_POST['password_2'];
+
     $urlUsuario = "https://api-movies-110421.herokuapp.com/api/users/$email";
 
-    if(!empty(file_get_contents($urlUsuario))){
-      $usuario = json_decode(file_get_contents($urlUsuario));
-
-      if($usuario->password == $password && $usuario->email == $email){
-        $_SESSION['user'] = $usuario->name;
-        $_SESSION['id'] = $usuario->cod_user;
-        header('location:filmes.php');
-      }else{
-        $msgLog = "Email ou senha nao encontrados!!!";
-      }
+    if($password == $password_2){
+        if(!empty(file_get_contents($urlUsuario))){
+            $msgLog = "Email ja cadastrado!!!";
+            
+        }else{
+            cadastrar($name, $email, $password);
+            $urlUsuario = "https://api-movies-110421.herokuapp.com/api/users/$email";
+            $usuario = json_decode(file_get_contents($urlUsuario));
+            $_SESSION['user'] = $usuario->name;
+            $_SESSION['id'] = $usuario->cod_user;
+            header('location: filmes.php');
+        }
     }else{
-      $msgLog = "Email ou senha nao encontrados!!!";
+        $msgLog = "Senhas não conferem!!!";
     }
   }
 
@@ -47,23 +55,31 @@
     </nav>
     <div class="card" id="cardLogin">
         <div class="card-body">
-            <h5 class="card-title">Faça seu Login</h5>
+            <h5 class="card-title">Faça seu Cadastro</h5>
             <?php
               if(!empty($msgLog)){
                 echo "<p id='msgLog'>$msgLog</p>";
               }
             ?>
-            <form action="index.php" method="post">
+            <form action="cadastro.php" method="post">
             <div class="mb-3">
-                <label class="form-label">Login</label>
-                <input type="email" class="form-control" name="login" aria-describedby="emailHelp" placeholder="Digite seu email">
+                <label class="form-label">Nome</label>
+                <input type="text" class="form-control" name="name" aria-describedby="" placeholder="Digite seu nome" required="required">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" name="email" aria-describedby="emailHelp" placeholder="Digite seu email" required="required">
             </div>
             <div class="mb-3">
                 <label class="form-label">Senha</label>
-                <input type="password" class="form-control" name="password" placeholder="Digite sua senha">
+                <input type="password" class="form-control" name="password" placeholder="Digite sua senha" required="required">
             </div>
-            <button type="submit" class="btn btn-outline-primary btn-block">Entrar</button>
-            <a class="cadastrar" href="cadastro.php">ou cadastre-se</a>
+            <div class="mb-3">
+                <label class="form-label">Repetir Senha</label>
+                <input type="password" class="form-control" name="password_2" placeholder="Digite sua senha novamente" required="required">
+            </div>
+            <button type="submit" class="btn btn-outline-primary btn-block">Cadastrar</button>
+            <a class="cadastrar" href="index.php">ou login</a>
             </form>
         </div>
     </div>

@@ -126,3 +126,8 @@ a:hover{
 .cardAvaAssistir:hover{
     border: 1px solid blue;
 }
+
+.cadastrar{
+    text-decoration: underline;
+    margin-left: 35%;
+}

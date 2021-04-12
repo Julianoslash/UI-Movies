@@ -54,7 +54,7 @@
     if(isset($_POST['remover'])){
       $cod = $_POST['remover'];
       deletarAvaliacao($cod);
-      header('locaion: filmes.php');
+      atualiza();
     }
 
     if(isset($_POST['sair'])){
