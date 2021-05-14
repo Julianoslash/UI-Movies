@@ -1,27 +1,8 @@
 <?php
-  session_start();
-  $msgLog = "";
-
-  if(!empty($_POST['login']) && !empty($_POST['password'])){
-    $email = $_POST['login'];
-    $password = $_POST['password'];
-    $urlUsuario = "https://api-movies-110421.herokuapp.com/api/users/$email";
-
-    if(!empty(file_get_contents($urlUsuario))){
-      $usuario = json_decode(file_get_contents($urlUsuario));
-
-      if($usuario->password == $password && $usuario->email == $email){
-        $_SESSION['user'] = $usuario->name;
-        $_SESSION['id'] = $usuario->cod_user;
-        header('location:filmes.php');
-      }else{
-        $msgLog = "Email ou senha nao encontrados!!!";
-      }
-    }else{
-      $msgLog = "Email ou senha nao encontrados!!!";
-    }
+  if ( !isset( $_SESSION) )
+  {
+     session_start();
   }
-
 ?>
 
 <!doctype html>
@@ -30,6 +11,7 @@
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
@@ -49,11 +31,12 @@
         <div class="card-body">
             <h5 class="card-title">Faça seu Login</h5>
             <?php
-              if(!empty($msgLog)){
-                echo "<p id='msgLog'>$msgLog</p>";
+              if(isset($_SESSION['msgLog'])){
+                echo "<p id='msgLog'>".$_SESSION['msgLog']."</p>";
+                unset($_SESSION['msgLog']);
               }
             ?>
-            <form action="index.php" method="post">
+            <form action="class/UserLoginController.class.php" method="post">
             <div class="mb-3">
                 <label class="form-label">Login</label>
                 <input type="email" class="form-control" name="login" aria-describedby="emailHelp" placeholder="Digite seu email">

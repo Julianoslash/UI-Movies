@@ -1,35 +1,8 @@
 <?php
-  session_start();
-  include('functions.php');
-  $msgLog = "";
-
-  if(!empty($_POST['name']) && !empty($_POST['email']) 
-            && !empty($_POST['password']) && !empty($_POST['password_2'])){
-       
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $password_2 = $_POST['password_2'];
-
-    $urlUsuario = "https://api-movies-110421.herokuapp.com/api/users/$email";
-
-    if($password == $password_2){
-        if(!empty(file_get_contents($urlUsuario))){
-            $msgLog = "Email ja cadastrado!!!";
-            
-        }else{
-            cadastrar($name, $email, $password);
-            $urlUsuario = "https://api-movies-110421.herokuapp.com/api/users/$email";
-            $usuario = json_decode(file_get_contents($urlUsuario));
-            $_SESSION['user'] = $usuario->name;
-            $_SESSION['id'] = $usuario->cod_user;
-            header('location: filmes.php');
-        }
-    }else{
-        $msgLog = "Senhas não conferem!!!";
-    }
+  if ( !isset( $_SESSION) )
+  {
+    session_start();
   }
-
 ?>
 
 <!doctype html>
@@ -57,11 +30,12 @@
         <div class="card-body">
             <h5 class="card-title">Faça seu Cadastro</h5>
             <?php
-              if(!empty($msgLog)){
-                echo "<p id='msgLog'>$msgLog</p>";
+              if(isset($_SESSION['msgLog'])){
+                echo "<p id='msgLog'>".$_SESSION['msgLog']."</p>";
+                unset($_SESSION['msgLog']);
               }
             ?>
-            <form action="cadastro.php" method="post">
+            <form action="class/UserRegisterController.class.php" method="post">
             <div class="mb-3">
                 <label class="form-label">Nome</label>
                 <input type="text" class="form-control" name="name" aria-describedby="" placeholder="Digite seu nome" required="required">

@@ -1,65 +1,16 @@
 <?php
-    session_start();
-    include('./functions.php');
+    if ( !isset( $_SESSION) )
+    {
+       session_start();
+    }
+    include 'functions.php';
+    include 'class/UserLoginController.class.php';
     $cod_user = $_SESSION['id'];
+    $userName = $_SESSION['user'];
 
-    $urlFilmes = "https://api-movies-110421.herokuapp.com/api/movies";
-    $filmes = json_decode(file_get_contents($urlFilmes));
-    
-    $urlAvaliacoes = "https://api-movies-110421.herokuapp.com/api/ratings/$cod_user";
-    $avaliacoes = json_decode(file_get_contents($urlAvaliacoes));
-
-    foreach($filmes as $value){
-      $todosFilmes[] = $value->cod_movie;
-    }
-
-    if(isset($avaliacoes)){
-      foreach($avaliacoes as $value){
-        $vistos[] = $value->cod_movie;
-        foreach($filmes as $filme){
-          if($value->cod_movie == $filme->cod_movie){
-            $filmesVistos[] = array(
-              "cod_movie" => $value->cod_movie,
-              "title" => $filme->title,
-              "date_launch" => $filme->date_launch,
-              "info" => $filme->info,
-              "image" => $filme->image,
-              "cod_rating" => $value->cod_rating,
-              "rating" => $value->rating
-            );
-          }
-        }
-      }
-    }
-
-    for($i = 0; $i < sizeof($todosFilmes); $i++){
-      if(isset($vistos)){
-        for($j = 0; $j < sizeof($vistos); $j++){
-          if($todosFilmes[$i] == $vistos[$j]){
-              $todosFilmes[$i] = -1;
-          }
-        }
-      }
-    }
-
-    if(isset($_POST['assistir'])){
-      $cod_filme = $_POST['assistir'];
-      $urlFilme = "https://api-movies-110421.herokuapp.com/api/movies/$cod_filme";
-      $filme = json_decode(file_get_contents($urlFilme));
-
-      $_SESSION['filme'] = $filme;
-      header('location:assistir.php');
-    }
-
-    if(isset($_POST['remover'])){
-      $cod = $_POST['remover'];
-      deletarAvaliacao($cod);
-      atualiza();
-    }
-
-    if(isset($_POST['sair'])){
-      header('location:index.php');
-    }
+    $controller = new MoviesListController($cod_user);
+    $filmesVistos = $controller->moviesWatched();
+    $filmesNaoVistos = $controller->moviesToWatch();
 ?>
 
 <!doctype html>
@@ -67,7 +18,10 @@
   <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
@@ -80,9 +34,9 @@
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="filmes.html"><img id="imageApi" src="./img/api_01.png" alt="..." class="img-thumbnail"></a>
-            <h3 id='usuario'><?php echo "Seja bem vindo(a) ".$_SESSION['user']; ?></h3>
+            <h3 id='usuario'><?php echo "Seja bem vindo(a) ".$userName; ?></h3>
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-              <form action="filmes.php" method="post">
+              <form action="./class/PageController.class.php" method="post">
                 <button class="btn btn-primary me-md-2" type="submit" name='sair'>Sair</button>
               </form>
             </div>
@@ -92,33 +46,32 @@
     <div id="bg">
       <h1 id='txt_1' class="bg_1">Filmes Assistidos!</h1>
       <div class="container-fluid d-flex flex-wrap grid">
-          <?php
-            if(isset($filmesVistos)){
-              foreach($filmesVistos as $value){
-                geraCardFilmes($value);
-              }
-            }else{
-              echo "<h4 class='txt_msg_1'>Não assistiu nenhum filme ainda!!!</h4>";
+        
+        <?php
+          if(isset($filmesVistos)){
+            foreach($filmesVistos as $value){
+              geraCardFilmes($value);
             }
-          ?>
+          }else{
+            echo "<h4 class='txt_msg_1'>Não assistiu nenhum filme ainda!!!</h4>";
+          }
+        ?>
       </div>
     </div>
 
     <div id="bg">
       <h1 id='txt_1' class="bg_2">Filmes para Assistir!</h1>
       <div class="container-fluid d-flex flex-wrap grid">
-          <?php
-            $validar = 0;
-            for($i = 0; $i < sizeof($todosFilmes); $i++){
-              if($todosFilmes[$i] != -1){
-                $validar++;
-                geraCardFilmesNaoVistos($filmes[$i]);
-              }
+        
+        <?php
+          if(isset($filmesNaoVistos)){
+            foreach($filmesNaoVistos as $value){
+              geraCardFilmesNaoVistos($value);
             }
-            if($validar == 0){
-              echo "<h4 class='txt_msg_1'>Ja assistiu a todos os filmes!!! em breve adicionaremos mais</h4>";
-            }
-          ?>
+          }else{
+            echo "<h4 class='txt_msg_1'>Ja assistiu a todos os filmes!!! em breve adicionaremos mais</h4>";
+          }
+        ?>
       </div>
     </div>
 
@@ -136,3 +89,13 @@
     -->
   </body>
 </html>
+
+<script>
+    var app = new vue({
+      el: '#app',
+      data:{
+        message: 'Hello World'
+      }
+    })
+
+</script>

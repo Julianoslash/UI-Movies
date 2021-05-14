@@ -1,22 +1,11 @@
 <?php
-    session_start();
-    include('./functions.php');
+    if ( !isset( $_SESSION) )
+    {
+       session_start();
+    }
+    include './functions.php';
     $cod_user = $_SESSION['id'];
     $filme = $_SESSION['filme'];
-
-    if(isset($_POST['avaliacao'])){
-        $value = $_POST['avaliacao'];
-        avaliar($value, $filme->cod_movie, $cod_user);
-        header('location: filmes.php');
-    }
-
-    if(isset($_POST['voltar'])){
-        header('location:filmes.php');
-    }
-
-    if(isset($_POST['sair'])){
-      header('location:index.php');
-    }
 ?>
 
 <!doctype html>
@@ -39,7 +28,7 @@
             <a class="navbar-brand" href="filmes.html"><img id="imageApi" src="./img/api_01.png" alt="..." class="img-thumbnail"></a>
             <h3 id='usuario'><?php echo "Seja bem vindo(a) ".$_SESSION['user']; ?></h3>
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-              <form action="filmes.php" method="post">
+              <form action="./class/PageController.class.php" method="post">
                 <button class="btn btn-primary me-md-2" type="submit" name='voltar'>Voltar</button>
                 <button class="btn btn-primary me-md-2" type="submit" name='sair'>Sair</button>
               </form>
